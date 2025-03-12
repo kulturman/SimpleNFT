@@ -9,7 +9,7 @@ contract SimpleNCF is Test {
 
     function setUp() public {
         simpleNFC = new SimpleNFC();
-        simpleNFC.generateToken();
+        simpleNFC.mint();
     }
 
     function testApprovesSuccessfully() public {

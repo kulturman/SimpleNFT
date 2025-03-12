@@ -32,7 +32,7 @@ contract SimpleNFC is IERC721 {
         owner = msg.sender;
     }
 
-    function generateToken() public {
+    function mint() public {
         require(msg.sender == owner);
         lastTokenId++;
 
