@@ -16,7 +16,7 @@ interface IERC721 {
     function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 }
 
-contract SimpleNFC is IERC721 {
+contract SimpleNFT is IERC721 {
     mapping(address => uint256) public balances;
     mapping(uint256 => address) public owners;
     mapping(uint256 => address) public tokenApprovedAdresses;
@@ -71,7 +71,7 @@ contract SimpleNFC is IERC721 {
     }
 
     function isApprovedForAll(address _owner, address _operator) public view returns (bool) {
-        return authorizedOperators[_owner][_operator] == true;
+        return authorizedOperators[_owner][_operator];
     }
 
     function ownerOf(uint256 _tokenId) public view returns (address) {
