@@ -12,16 +12,16 @@ contract SimpleNFCMint is Test {
     }
 
     function testMintSucceeds() public {
-        assertEq(simpleNFC.balances(address(this)), 0);
+        assertEq(simpleNFC.balanceOf(address(this)), 0);
         simpleNFC.mint();
-        assertEq(simpleNFC.balances(address(this)), 1);
+        assertEq(simpleNFC.balanceOf(address(this)), 1);
     }
 
     function testMintSucceedsTwice() public {
-        assertEq(simpleNFC.balances(address(this)), 0);
+        assertEq(simpleNFC.balanceOf(address(this)), 0);
         simpleNFC.mint();
         simpleNFC.mint();
-        assertEq(simpleNFC.balances(address(this)), 2);
+        assertEq(simpleNFC.balanceOf(address(this)), 2);
     }
 
     function testMintsFailsWhenNotOwner() public {
