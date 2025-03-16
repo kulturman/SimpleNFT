@@ -6,6 +6,10 @@ interface IERC721 {
     event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
     event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
+    error NoAuthorizationOnToken(uint256 tokenId, address sender);
+    error InvalidToken(uint256 token);
+    error InvalidAddress(address adr);
+
 
     function balanceOf(address _owner) external view returns (uint256);
     function ownerOf(uint256 _tokenId) external view returns (address);
@@ -23,10 +27,6 @@ contract SimpleNFT is IERC721 {
     mapping(address => mapping(address => bool)) public authorizedOperators;
     address public  owner;
     uint256 public lastTokenId = 0;
-
-    error NoAuthorizationOnToken(uint256 tokenId, address sender);
-    error InvalidToken(uint256 token);
-    error InvalidAddress(address adr);
 
     constructor() {
         owner = msg.sender;
