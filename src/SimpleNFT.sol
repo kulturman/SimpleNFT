@@ -8,7 +8,7 @@ interface IERC721 {
 
     error NoAuthorizationOnToken(uint256 tokenId, address sender);
     error InvalidToken(uint256 token);
-    error InvalidAddress(address adr);
+    error InvalidAddress();
 
 
     function balanceOf(address _owner) external view returns (uint256);
@@ -57,7 +57,7 @@ contract SimpleNFT is IERC721 {
     }
 
     function balanceOf(address _owner) external view returns (uint256) {
-        require(_owner != address(0), InvalidAddress(_owner));
+        require(_owner != address(0), InvalidAddress());
         return balances[_owner];
     }
 
