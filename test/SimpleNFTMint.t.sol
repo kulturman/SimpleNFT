@@ -25,7 +25,7 @@ contract SimpleNFCMint is Test {
     }
 
     function testMintsFailsWhenNotOwner() public {
-        vm.prank(address (0));
+        vm.prank(address(0));
         vm.expectRevert();
         simpleNFC.mint();
     }

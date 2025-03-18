@@ -11,12 +11,12 @@ contract SimpleNFTOwnerOf is Test {
         simpleNFC.mint();
     }
 
-    function testOwnerOfWithInvalidTokenReverts() public  {
+    function testOwnerOfWithInvalidTokenReverts() public {
         vm.expectRevert();
         simpleNFC.ownerOf(100);
     }
 
-    function testOwnerOfSucceeds() view public {
+    function testOwnerOfSucceeds() public view {
         uint256 tokenId = 1;
         address contractOwner = address(this);
         assertEq(simpleNFC.ownerOf(tokenId), contractOwner);

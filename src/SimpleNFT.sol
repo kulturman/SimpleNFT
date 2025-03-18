@@ -10,7 +10,6 @@ interface IERC721 {
     error InvalidToken(uint256 token);
     error InvalidAddress();
 
-
     function balanceOf(address _owner) external view returns (uint256);
     function ownerOf(uint256 _tokenId) external view returns (address);
     function transferFrom(address _from, address _to, uint256 _tokenId) external payable;
@@ -25,7 +24,7 @@ contract SimpleNFT is IERC721 {
     mapping(uint256 => address) public owners;
     mapping(uint256 => address) public tokenApprovedAdresses;
     mapping(address => mapping(address => bool)) public authorizedOperators;
-    address public  owner;
+    address public owner;
     uint256 public lastTokenId = 0;
 
     constructor() {
@@ -52,7 +51,7 @@ contract SimpleNFT is IERC721 {
 
     modifier onlyValidAddress(address adr) {
         //Change later
-        require(adr != address(0), 'invalid address');
+        require(adr != address(0), "invalid address");
         _;
     }
 
@@ -61,7 +60,7 @@ contract SimpleNFT is IERC721 {
         return balances[_owner];
     }
 
-    function approve(address _approved, uint256 _tokenId) onlyOwnerAndAuthorizedOperator(_tokenId) external payable {
+    function approve(address _approved, uint256 _tokenId) external payable onlyOwnerAndAuthorizedOperator(_tokenId) {
         tokenApprovedAdresses[_tokenId] = _approved;
         emit Approval(ownerOf(_tokenId), _approved, _tokenId);
     }
@@ -87,11 +86,7 @@ contract SimpleNFT is IERC721 {
         authorizedOperators[msg.sender][_operator] = _approved;
     }
 
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) onlyValidAddress(_to) external payable {
+    function transferFrom(address _from, address _to, uint256 _tokenId) external payable onlyValidAddress(_to) {
         require(_from == ownerOf(_tokenId));
         address tokenOwner = owners[_tokenId];
 

@@ -32,9 +32,7 @@ contract SimpleNFTTransferFrom is Test {
         //Token 1 belongs to secondAccount now, we already tested this case above
         simpleNFT.transferFrom(contractOwner, secondAccount, 1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC721.NoAuthorizationOnToken.selector, 1, contractOwner)
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC721.NoAuthorizationOnToken.selector, 1, contractOwner));
         simpleNFT.transferFrom(secondAccount, contractOwner, 1);
     }
 
