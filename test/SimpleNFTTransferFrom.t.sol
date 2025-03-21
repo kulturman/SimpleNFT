@@ -59,4 +59,22 @@ contract SimpleNFTTransferFrom is Test {
         assertEq(simpleNFT.balanceOf(secondAccount), 0);
         assertEq(simpleNFT.balanceOf(thirdAccount), 1);
     }
+
+    function testTransferFailsToZeroAddress() public {
+        vm.expectRevert("invalid address");
+        simpleNFT.transferFrom(contractOwner, address(0), 1);
+    }
+
+    function testTransferFailsForNonExistentToken() public {
+        vm.expectRevert(abi.encodeWithSelector(IERC721.InvalidToken.selector, 999));
+        simpleNFT.transferFrom(contractOwner, secondAccount, 999);
+    }
+
+    function testTransferClearsApprovedAddress() public {
+        simpleNFT.approve(secondAccount, 1);
+        vm.prank(secondAccount);
+        simpleNFT.transferFrom(contractOwner, address(2), 1);
+
+        assertEq(simpleNFT.getApproved(1), address(0));
+    }
 }
