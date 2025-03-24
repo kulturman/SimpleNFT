@@ -13,6 +13,9 @@ contract SimpleNFCMint is Test {
 
     function testMintSucceeds() public {
         assertEq(simpleNFC.balanceOf(address(this)), 0);
+        vm.expectEmit();
+        emit IERC721.Transfer(address(0), address(this), 1);
+
         simpleNFC.mint();
         assertEq(simpleNFC.balanceOf(address(this)), 1);
     }

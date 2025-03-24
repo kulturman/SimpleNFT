@@ -37,6 +37,7 @@ contract SimpleNFT is IERC721 {
 
         owners[lastTokenId] = owner;
         balances[owner]++;
+        emit Transfer(address(0), owner, lastTokenId);
     }
 
     modifier onlyOwnerAndAuthorizedOperator(uint256 tokenId) {
