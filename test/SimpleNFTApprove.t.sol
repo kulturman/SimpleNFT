@@ -23,4 +23,9 @@ contract SimpleNFCApprove is Test {
         simpleNFC.approve(contractOwner, tokenId);
         assertEq(simpleNFC.getApproved(tokenId), contractOwner);
     }
+
+    function testRevertsWhenTokenIsInvalid() public {
+        vm.expectRevert();
+        simpleNFC.approve(address(1), 100);
+    }
 }
