@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
+import {console} from "forge-std/console.sol";
+
+
 interface IERC721 {
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
     event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
@@ -104,5 +107,7 @@ contract SimpleNFT is IERC721 {
         tokenApprovedAdresses[_tokenId] = address(0);
 
         emit Transfer(_from, _to, _tokenId);
+        string memory key = string(abi.encodePacked("Transfer from ", _from, " to ", _to));
+        console.log(key);
     }
 }

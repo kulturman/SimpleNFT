@@ -5,14 +5,14 @@ import {Script, console} from "forge-std/Script.sol";
 import {SimpleNFT} from "../src/SimpleNFT.sol";
 
 contract CounterScript is Script {
-    SimpleNFT public simpleNFC;
-
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast();
+        uint256 deployerPrivateKey = vm.envUint("SEPOLIA_PRIVATE_KEY");
 
-        simpleNFC = new SimpleNFT();
+        vm.startBroadcast(deployerPrivateKey);
+
+        new SimpleNFT();
 
         vm.stopBroadcast();
     }
