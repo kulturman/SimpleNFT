@@ -1,24 +1,24 @@
 pragma solidity ^0.8.28;
 
-import "../src/SimpleNFT.sol";
+import {SimpleNFT} from "../src/SimpleNFT.sol";
 import {Test} from "../lib/forge-std/src/Test.sol";
 
 contract SimpleNFTOwnerOf is Test {
-    SimpleNFT public simpleNFC;
+    SimpleNFT public simpleNFT;
 
     function setUp() public {
-        simpleNFC = new SimpleNFT();
-        simpleNFC.mint();
+        simpleNFT = new SimpleNFT();
+        simpleNFT.mint();
     }
 
     function testOwnerOfWithInvalidTokenReverts() public {
         vm.expectRevert();
-        simpleNFC.ownerOf(100);
+        simpleNFT.ownerOf(100);
     }
 
     function testOwnerOfSucceeds() public view {
         uint256 tokenId = 1;
         address contractOwner = address(this);
-        assertEq(simpleNFC.ownerOf(tokenId), contractOwner);
+        assertEq(simpleNFT.ownerOf(tokenId), contractOwner);
     }
 }

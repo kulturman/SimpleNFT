@@ -2,7 +2,8 @@ pragma solidity ^0.8.28;
 
 import {Test, console} from "forge-std/Test.sol";
 
-import {SimpleNFT, IERC721} from "../src/SimpleNFT.sol";
+import {SimpleNFT} from "../src/SimpleNFT.sol";
+import {IERC721} from "../src/interfaces/IERC721.sol";
 
 contract SimpleNFCMint is Test {
     SimpleNFT public simpleNFC;
