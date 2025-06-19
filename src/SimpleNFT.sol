@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IERC721} from "./interfaces/IERC721.sol";
+import "./interfaces/ERC165.sol";
 import {IERC721TokenReceiver} from "./interfaces/IERC721TokenReceiver.sol";
+import {IERC721} from "./interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
 
-contract SimpleNFT is IERC721 {
+contract SimpleNFT is IERC721, ERC165 {
     address public owner;
     uint256 public lastTokenId = 0;
 
@@ -129,5 +130,9 @@ contract SimpleNFT is IERC721 {
             msg.sender == tokenOwner || isApprovedForAll(tokenOwner, msg.sender) || getApproved(tokenId) == msg.sender,
             NoAuthorizationOnToken(tokenId, msg.sender)
         );
+    }
+
+    function supportsInterface(bytes4 interfaceID) external view returns (bool) {
+        return type(IERC721).interfaceId == interfaceID;
     }
 }
