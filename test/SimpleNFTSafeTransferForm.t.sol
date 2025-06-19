@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.10;
 
-import {Test, console} from "../lib/forge-std/src/Test.sol";
+import {Test} from "../lib/forge-std/src/Test.sol";
 import {SimpleNFT} from "../src/SimpleNFT.sol";
 import {IERC721} from "../src/interfaces/IERC721.sol";
 import {ERC721RightReceiver} from "../src/test/ERC721RightReceiver.sol";

@@ -6,31 +6,54 @@ import {SimpleNFT} from "../src/SimpleNFT.sol";
 import {IERC721} from "../src/interfaces/IERC721.sol";
 
 contract SimpleNFCMint is Test {
-    SimpleNFT public simpleNFC;
+    SimpleNFT public simpleNFT;
 
     function setUp() public {
-        simpleNFC = new SimpleNFT();
+        simpleNFT = new SimpleNFT();
     }
 
     function testMintSucceeds() public {
-        assertEq(simpleNFC.balanceOf(address(this)), 0);
+        assertEq(simpleNFT.balanceOf(address(this)), 0);
         vm.expectEmit();
         emit IERC721.Transfer(address(0), address(this), 1);
 
-        simpleNFC.mint();
-        assertEq(simpleNFC.balanceOf(address(this)), 1);
+        simpleNFT.mint();
+        assertEq(simpleNFT.balanceOf(address(this)), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 0), 1);
     }
 
-    function testMintSucceedsTwice() public {
-        assertEq(simpleNFC.balanceOf(address(this)), 0);
-        simpleNFC.mint();
-        simpleNFC.mint();
-        assertEq(simpleNFC.balanceOf(address(this)), 2);
+    function testMintForDifferentAddressSucceeds() public {
+        simpleNFT.mint(address(1));
+        assertEq(simpleNFT.ownerOf(1), address(1));
+    }
+
+    function testMintSucceedsTwiceWith() public {
+        assertEq(simpleNFT.balanceOf(address(this)), 0);
+        simpleNFT.mint();
+        simpleNFT.mint();
+        assertEq(simpleNFT.balanceOf(address(this)), 2);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 1), 2);
+    }
+
+    function testMintSucceedsWithDifferentUsersOneAfterAnother() public {
+        address firstUser = address(1);
+        address secondUser = address(2);
+
+        simpleNFT.mint(firstUser);
+        simpleNFT.mint(secondUser);
+
+        assertEq(simpleNFT.balanceOf(firstUser), 1);
+        assertEq(simpleNFT.balanceOf(secondUser), 1);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(secondUser, 0), 2);
     }
 
     function testMintsFailsWhenNotOwner() public {
         vm.prank(address(0));
         vm.expectRevert();
-        simpleNFC.mint();
+        simpleNFT.mint();
     }
 }

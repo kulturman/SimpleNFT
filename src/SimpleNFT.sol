@@ -1,31 +1,51 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
+import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import "./interfaces/ERC165.sol";
+import {IERC721Metadata} from "./interfaces/IERC721Metadata.sol";
 import {IERC721TokenReceiver} from "./interfaces/IERC721TokenReceiver.sol";
+import {IERC721Enumerable} from "./interfaces/IERC721Enumerable.sol";
 import {IERC721} from "./interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
 
-contract SimpleNFT is IERC721, ERC165 {
+contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
     address public owner;
     uint256 public lastTokenId = 0;
+
+    string private _name = "Simple NFT";
+    string private _symbol = "$NFT";
+
+    string public baseUrl =
+        "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeif2srdwcixtw2fu6a4ox72mhfg73bhjrf2pq6clap7rcza66bygo4";
 
     mapping(address => uint256) public balances;
     mapping(uint256 => address) public owners;
     mapping(uint256 => address) public tokenApprovedAdresses;
     mapping(address => mapping(address => bool)) public authorizedOperators;
+    mapping(address => uint256[]) public addressTokens;
 
     constructor() {
         owner = msg.sender;
     }
 
-    function mint() public {
+    function mint() external {
+        __mint(msg.sender);
+    }
+
+    function mint(address receiver) external {
+        __mint(receiver);
+    }
+
+    function __mint(address receiver) private {
         require(msg.sender == owner);
         lastTokenId++;
 
-        owners[lastTokenId] = owner;
-        balances[owner]++;
-        emit Transfer(address(0), owner, lastTokenId);
+        owners[lastTokenId] = receiver;
+        balances[receiver]++;
+
+        addressTokens[receiver].push(lastTokenId);
+        emit Transfer(address(0), receiver, lastTokenId);
     }
 
     modifier onlyOwnerAndAuthorizedOperator(uint256 tokenId) {
@@ -134,5 +154,32 @@ contract SimpleNFT is IERC721, ERC165 {
 
     function supportsInterface(bytes4 interfaceID) external view returns (bool) {
         return type(IERC721).interfaceId == interfaceID;
+    }
+
+    function name() external view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() external view returns (string memory) {
+        return _symbol;
+    }
+
+    function tokenURI(uint256 _tokenId) external view returns (string memory) {
+        require(owners[_tokenId] != address(0), InvalidToken(_tokenId));
+
+        return string(abi.encodePacked(baseUrl, "/", Strings.toString(_tokenId), ".json"));
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return lastTokenId;
+    }
+
+    function tokenByIndex(uint256 _index) external view returns (uint256) {
+        //Because token 0 is not valid, since we are not burning tokens this is fine
+        return _index + 1;
+    }
+
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256) {
+        return addressTokens[_owner][_index];
     }
 }
