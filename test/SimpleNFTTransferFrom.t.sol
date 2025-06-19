@@ -62,7 +62,7 @@ contract SimpleNFTTransferFrom is Test {
     }
 
     function testTransferFailsToZeroAddress() public {
-        vm.expectRevert("invalid address");
+        vm.expectRevert("Invalid address");
         simpleNFT.transferFrom(contractOwner, address(0), 1);
     }
 
@@ -74,8 +74,10 @@ contract SimpleNFTTransferFrom is Test {
     function testTransferClearsApprovedAddress() public {
         simpleNFT.approve(secondAccount, 1);
         vm.prank(secondAccount);
-        simpleNFT.transferFrom(contractOwner, address(2), 1);
+        simpleNFT.transferFrom(contractOwner, secondAccount, 1);
 
         assertEq(simpleNFT.getApproved(1), address(0));
+        assertEq(simpleNFT.balanceOf(contractOwner), 0, "Contract owner should have no balance");
+        assertEq(simpleNFT.balanceOf(secondAccount), 1, "Receiver owner should have 1 for balance");
     }
 }
