@@ -19,6 +19,22 @@ contract SimpleNFTSafeTransferForm is Test {
         secondAccount = address(1);
     }
 
+    function testSuccessfulSafeTransferUpdatesOwnedTokens() public {
+        address firstUser = address(this);
+        address secondUser = address(2);
+
+        //We already minted on in setUp
+        simpleNFT.mint(firstUser);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 1), 2);
+
+        simpleNFT.safeTransferFrom(firstUser, secondUser, 2);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(secondUser, 0), 2);
+    }
+
     function testSafeTransferFailsToAddressIsInvalid() public {
         vm.expectRevert("Invalid address");
 

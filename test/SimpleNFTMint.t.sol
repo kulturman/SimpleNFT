@@ -12,14 +12,16 @@ contract SimpleNFCMint is Test {
         simpleNFT = new SimpleNFT();
     }
 
-    function testMintSucceeds() public {
+    function testMintSucceedsAndImpactEnumarable() public {
         assertEq(simpleNFT.balanceOf(address(this)), 0);
         vm.expectEmit();
         emit IERC721.Transfer(address(0), address(this), 1);
 
         simpleNFT.mint();
+        assertEq(simpleNFT.totalSupply(), 1);
         assertEq(simpleNFT.balanceOf(address(this)), 1);
         assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 0), 1);
+        assertEq(simpleNFT.tokenByIndex(0), 1);
     }
 
     function testMintForDifferentAddressSucceeds() public {
@@ -31,8 +33,9 @@ contract SimpleNFCMint is Test {
         assertEq(simpleNFT.balanceOf(address(this)), 0);
         simpleNFT.mint();
         simpleNFT.mint();
-        assertEq(simpleNFT.balanceOf(address(this)), 2);
 
+        assertEq(simpleNFT.totalSupply(), 2);
+        assertEq(simpleNFT.balanceOf(address(this)), 2);
         assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 0), 1);
         assertEq(simpleNFT.tokenOfOwnerByIndex(address(this), 1), 2);
     }
@@ -51,7 +54,7 @@ contract SimpleNFCMint is Test {
         assertEq(simpleNFT.tokenOfOwnerByIndex(secondUser, 0), 2);
     }
 
-    function testMintsFailsWhenNotOwner() public {
+    function testMintsFailsWhenNotContractOwner() public {
         vm.prank(address(0));
         vm.expectRevert();
         simpleNFT.mint();

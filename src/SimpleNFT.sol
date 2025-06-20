@@ -16,6 +16,11 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
     string private _name = "Simple NFT";
     string private _symbol = "$NFT";
 
+    uint256[] private allTokens;
+    mapping(uint256 => uint256) private allTokensIndex;
+    mapping(address => uint256[]) private ownedTokens;
+    mapping(uint256 => uint256) private ownedTokensIndex;
+
     string public baseUrl =
         "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeif2srdwcixtw2fu6a4ox72mhfg73bhjrf2pq6clap7rcza66bygo4";
 
@@ -23,7 +28,6 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
     mapping(uint256 => address) public owners;
     mapping(uint256 => address) public tokenApprovedAdresses;
     mapping(address => mapping(address => bool)) public authorizedOperators;
-    mapping(address => uint256[]) public addressTokens;
 
     constructor() {
         owner = msg.sender;
@@ -44,7 +48,12 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
         owners[lastTokenId] = receiver;
         balances[receiver]++;
 
-        addressTokens[receiver].push(lastTokenId);
+        allTokens.push(lastTokenId);
+        allTokensIndex[lastTokenId] = allTokens.length - 1;
+
+        ownedTokens[receiver].push(lastTokenId);
+        ownedTokensIndex[lastTokenId] = ownedTokens[receiver].length - 1;
+
         emit Transfer(address(0), receiver, lastTokenId);
     }
 
@@ -103,6 +112,9 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
         balances[_from]--;
         tokenApprovedAdresses[_tokenId] = address(0);
 
+        _removeTokenFromOwnerEnumeration(_from, _tokenId);
+        _addTokenToOwnerEnumeration(_to, _tokenId);
+
         emit Transfer(_from, _to, _tokenId);
     }
 
@@ -126,6 +138,9 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
         balances[_to]++;
         balances[_from]--;
         tokenApprovedAdresses[_tokenId] = address(0);
+
+        _removeTokenFromOwnerEnumeration(_from, _tokenId);
+        _addTokenToOwnerEnumeration(_to, _tokenId);
 
         if (_to.code.length > 0) {
             (bool success, bytes memory result) = _to.call(
@@ -153,7 +168,8 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
     }
 
     function supportsInterface(bytes4 interfaceID) external view returns (bool) {
-        return type(IERC721).interfaceId == interfaceID;
+        return interfaceID == type(IERC721).interfaceId || interfaceID == type(IERC721Metadata).interfaceId
+            || interfaceID == type(IERC721Enumerable).interfaceId;
     }
 
     function name() external view returns (string memory) {
@@ -170,16 +186,35 @@ contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
         return string(abi.encodePacked(baseUrl, "/", Strings.toString(_tokenId), ".json"));
     }
 
-    function totalSupply() external view returns (uint256) {
-        return lastTokenId;
+    function totalSupply() external view override returns (uint256) {
+        return allTokens.length;
     }
 
     function tokenByIndex(uint256 _index) external view returns (uint256) {
-        //Because token 0 is not valid, since we are not burning tokens this is fine
-        return _index + 1;
+        require(_index < allTokens.length, NoTokenAtIndex(_index));
+        return allTokens[_index];
     }
 
     function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256) {
-        return addressTokens[_owner][_index];
+        require(_index < ownedTokens[_owner].length, NoTokenAtIndex(_index));
+        return ownedTokens[_owner][_index];
+    }
+
+    function _removeTokenFromOwnerEnumeration(address from, uint256 tokenId) private {
+        uint256 lastIndex = ownedTokens[from].length - 1;
+        uint256 tokenIndex = ownedTokensIndex[tokenId];
+
+        if (tokenIndex != lastIndex) {
+            uint256 lastToken = ownedTokens[from][lastIndex];
+            ownedTokens[from][tokenIndex] = lastToken;
+            ownedTokensIndex[lastToken] = tokenIndex;
+        }
+
+        ownedTokens[from].pop();
+    }
+
+    function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
+        ownedTokens[to].push(tokenId);
+        ownedTokensIndex[tokenId] = ownedTokens[to].length - 1;
     }
 }

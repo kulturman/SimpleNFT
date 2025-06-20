@@ -1,7 +1,7 @@
 pragma solidity ^0.8.28;
 
 import {SimpleNFT} from "../src/SimpleNFT.sol";
-import {Test} from "../lib/forge-std/src/Test.sol";
+import {Test, console} from "../lib/forge-std/src/Test.sol";
 import {IERC721} from "../src/interfaces/IERC721.sol";
 
 contract SimpleNFTTransferFrom is Test {
@@ -69,6 +69,22 @@ contract SimpleNFTTransferFrom is Test {
     function testTransferFailsForNonExistentToken() public {
         vm.expectRevert(abi.encodeWithSelector(IERC721.InvalidToken.selector, 999));
         simpleNFT.transferFrom(contractOwner, secondAccount, 999);
+    }
+
+    function testSuccessfulTransferUpdatesOwnedTokens() public {
+        address firstUser = address(this);
+        address secondUser = address(2);
+
+        //We already minted on in setUp
+        simpleNFT.mint(firstUser);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 1), 2);
+
+        simpleNFT.transferFrom(firstUser, secondUser, 2);
+
+        assertEq(simpleNFT.tokenOfOwnerByIndex(firstUser, 0), 1);
+        assertEq(simpleNFT.tokenOfOwnerByIndex(secondUser, 0), 2);
     }
 
     function testTransferClearsApprovedAddress() public {
