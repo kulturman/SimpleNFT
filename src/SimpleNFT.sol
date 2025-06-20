@@ -12,15 +12,13 @@ import {console} from "forge-std/console.sol";
 contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     address public owner;
     uint256 public lastTokenId = 0;
+    uint256 public constant TOKEN_UNIT_COST = 1 gwei;
+    uint256 public totalEthersCollected;
 
     string private _name = "Simple NFT";
     string private _symbol = "$NFT";
 
     uint256[] private allTokens;
-    mapping(uint256 => uint256) private allTokensIndex;
-    mapping(address => uint256[]) private ownedTokens;
-    mapping(uint256 => uint256) private ownedTokensIndex;
-
     string public baseUrl =
         "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeif2srdwcixtw2fu6a4ox72mhfg73bhjrf2pq6clap7rcza66bygo4";
 
@@ -28,21 +26,40 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     mapping(uint256 => address) public owners;
     mapping(uint256 => address) public tokenApprovedAdresses;
     mapping(address => mapping(address => bool)) public authorizedOperators;
+    mapping(address => uint256) public etherOwners;
+    mapping(uint256 => uint256) private allTokensIndex;
+    mapping(address => uint256[]) private ownedTokens;
+    mapping(uint256 => uint256) private ownedTokensIndex;
 
     constructor() {
         owner = msg.sender;
     }
 
     function mint() external {
+        require(msg.sender == owner);
         __mint(msg.sender);
     }
 
     function mint(address receiver) external {
+        require(msg.sender == owner);
         __mint(receiver);
     }
 
+    //Others will use this function to mint
+    function mintSimpleNFT() external payable {
+        require(msg.value >= TOKEN_UNIT_COST, InsufficientAmountOrNotMultipleOfTokenPrice(msg.value, TOKEN_UNIT_COST));
+        uint256 numberOfTokensPurchased = msg.value / TOKEN_UNIT_COST;
+
+        unchecked {
+            for (uint256 i = 1; i <= numberOfTokensPurchased; i++) {
+                __mint(msg.sender);
+            }
+        }
+
+        totalEthersCollected += msg.value;
+    }
+
     function __mint(address receiver) private {
-        require(msg.sender == owner);
         lastTokenId++;
 
         owners[lastTokenId] = receiver;
@@ -216,5 +233,13 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
         ownedTokens[to].push(tokenId);
         ownedTokensIndex[tokenId] = ownedTokens[to].length - 1;
+    }
+
+    function withdraw(uint256 amount) external {
+        uint256 senderBalance = etherOwners[msg.sender];
+        console.log(senderBalance);
+        console.log(amount);
+
+        require(senderBalance >= amount, InsufficientBalanceToWithdraw(msg.sender, etherOwners[msg.sender], amount));
     }
 }

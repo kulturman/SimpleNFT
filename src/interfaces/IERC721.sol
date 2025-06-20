@@ -10,6 +10,8 @@ interface IERC721 {
     error InvalidToken(uint256 token);
     error InvalidAddress();
     error NotTokenOwner(address token, address notOnwer);
+    error InsufficientBalanceToWithdraw(address caller, uint256 currentBalance, uint256 withdrawAmount);
+    error InsufficientAmountOrNotMultipleOfTokenPrice(uint256 amountSend, uint256 unitPriceOfToken);
 
     function balanceOf(address _owner) external view returns (uint256);
     function ownerOf(uint256 _tokenId) external view returns (address);
