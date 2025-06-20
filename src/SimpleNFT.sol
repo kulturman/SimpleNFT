@@ -2,14 +2,14 @@
 pragma solidity 0.8.28;
 
 import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
-import "./interfaces/ERC165.sol";
+import "./interfaces/IERC165.sol";
 import {IERC721Metadata} from "./interfaces/IERC721Metadata.sol";
 import {IERC721TokenReceiver} from "./interfaces/IERC721TokenReceiver.sol";
 import {IERC721Enumerable} from "./interfaces/IERC721Enumerable.sol";
 import {IERC721} from "./interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
 
-contract SimpleNFT is IERC721, ERC165, IERC721Metadata, IERC721Enumerable {
+contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     address public owner;
     uint256 public lastTokenId = 0;
 
