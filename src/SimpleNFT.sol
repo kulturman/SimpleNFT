@@ -11,6 +11,7 @@ import {console} from "forge-std/console.sol";
 
 contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     address public owner;
+    address public pendingOwner;
     uint256 public lastTokenId = 0;
     uint256 public constant TOKEN_UNIT_COST = 1 gwei;
     uint256 public totalEthersCollected;
@@ -241,5 +242,16 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         console.log(amount);
 
         require(senderBalance >= amount, InsufficientBalanceToWithdraw(msg.sender, etherOwners[msg.sender], amount));
+    }
+
+    function transferOwnership(address _newOwner) external {
+        require(msg.sender == owner);
+        pendingOwner = _newOwner;
+    }
+
+    function acceptOwnership() external {
+        require(msg.sender == pendingOwner, "Not pending owner");
+        owner = pendingOwner;
+        pendingOwner = address(0);
     }
 }
