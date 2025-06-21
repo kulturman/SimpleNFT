@@ -15,6 +15,8 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     uint256 public lastTokenId = 0;
     uint256 public constant TOKEN_UNIT_COST = 1 gwei;
     uint256 public totalEthersCollected;
+    uint256 public revealTimestamp;
+    bool public revealed;
 
     string private _name = "Simple NFT";
     string private _symbol = "$NFT";
@@ -25,7 +27,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
 
     mapping(address => uint256) public balances;
     mapping(uint256 => address) public owners;
-    mapping(uint256 => address) public tokenApprovedAdresses;
+    mapping(uint256 => address) public tokenApprovedAddresses;
     mapping(address => mapping(address => bool)) public authorizedOperators;
     mapping(address => uint256) public etherOwners;
     mapping(uint256 => uint256) private allTokensIndex;
@@ -34,6 +36,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
 
     constructor() {
         owner = msg.sender;
+        revealTimestamp = block.timestamp + 1 hours;
     }
 
     function mint() external {
@@ -97,12 +100,12 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     }
 
     function approve(address _approved, uint256 _tokenId) external payable onlyOwnerAndAuthorizedOperator(_tokenId) {
-        tokenApprovedAdresses[_tokenId] = _approved;
+        tokenApprovedAddresses[_tokenId] = _approved;
         emit Approval(ownerOf(_tokenId), _approved, _tokenId);
     }
 
     function getApproved(uint256 _tokenId) public view returns (address) {
-        return tokenApprovedAdresses[_tokenId];
+        return tokenApprovedAddresses[_tokenId];
     }
 
     function isApprovedForAll(address _owner, address _operator) public view returns (bool) {
@@ -128,7 +131,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         owners[_tokenId] = _to;
         balances[_to]++;
         balances[_from]--;
-        tokenApprovedAdresses[_tokenId] = address(0);
+        tokenApprovedAddresses[_tokenId] = address(0);
 
         _removeTokenFromOwnerEnumeration(_from, _tokenId);
         _addTokenToOwnerEnumeration(_to, _tokenId);
@@ -155,7 +158,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         owners[_tokenId] = _to;
         balances[_to]++;
         balances[_from]--;
-        tokenApprovedAdresses[_tokenId] = address(0);
+        tokenApprovedAddresses[_tokenId] = address(0);
 
         _removeTokenFromOwnerEnumeration(_from, _tokenId);
         _addTokenToOwnerEnumeration(_to, _tokenId);
@@ -200,6 +203,10 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
 
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
         require(owners[_tokenId] != address(0), InvalidToken(_tokenId));
+
+        if (!revealed) {
+            return "Collection not revealed yet!";
+        }
 
         return string(abi.encodePacked(baseUrl, "/", Strings.toString(_tokenId), ".json"));
     }
@@ -251,5 +258,11 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         require(msg.sender == pendingOwner, "Not pending owner");
         owner = pendingOwner;
         pendingOwner = address(0);
+    }
+
+    function reveal() external {
+        require(msg.sender == owner);
+        require(block.timestamp >= revealTimestamp, "Too early to reveal");
+        revealed = true;
     }
 }
