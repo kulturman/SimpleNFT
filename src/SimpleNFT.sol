@@ -161,7 +161,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         _addTokenToOwnerEnumeration(_to, _tokenId);
 
         if (_to.code.length > 0) {
-            (bool success, bytes memory result) = _to.call(
+            (, bytes memory result) = _to.call(
                 abi.encodeWithSignature(
                     "onERC721Received(address,address,uint256,bytes)", msg.sender, _from, _tokenId, data
                 )
@@ -237,11 +237,9 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     }
 
     function withdraw(uint256 amount) external {
-        uint256 senderBalance = etherOwners[msg.sender];
-        console.log(senderBalance);
-        console.log(amount);
-
-        require(senderBalance >= amount, InsufficientBalanceToWithdraw(msg.sender, etherOwners[msg.sender], amount));
+        require(msg.sender == owner && amount <= totalEthersCollected);
+        totalEthersCollected -= amount;
+        owner.call{value: amount}("");
     }
 
     function transferOwnership(address _newOwner) external {
