@@ -16,6 +16,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     uint256 public constant TOKEN_UNIT_COST = 1 gwei;
     uint256 public totalEthersCollected;
     uint256 public revealTimestamp;
+    uint256 public withdrawTimestamp;
     bool public revealed;
 
     string private _name = "Simple NFT";
@@ -37,6 +38,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     constructor() {
         owner = msg.sender;
         revealTimestamp = block.timestamp + 1 hours;
+        withdrawTimestamp = revealTimestamp + 1 hours;
     }
 
     function mint() external {
@@ -244,7 +246,8 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     }
 
     function withdraw(uint256 amount) external {
-        require(msg.sender == owner && amount <= totalEthersCollected);
+        require(msg.sender == owner && amount <= totalEthersCollected, "Not enough balance");
+        require(revealed && block.timestamp >= withdrawTimestamp, "Too early to withdraw");
         totalEthersCollected -= amount;
         owner.call{value: amount}("");
     }

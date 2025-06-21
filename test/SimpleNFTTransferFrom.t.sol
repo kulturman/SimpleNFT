@@ -1,4 +1,4 @@
-pragma solidity ^0.8.28;
+pragma solidity 0.8.28;
 
 import {SimpleNFT} from "../src/SimpleNFT.sol";
 import {Test, console} from "../lib/forge-std/src/Test.sol";

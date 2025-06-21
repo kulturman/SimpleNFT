@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.28;
 
 import {Test, console} from "../lib/forge-std/src/Test.sol";
 import {SimpleNFT} from "../src/SimpleNFT.sol";
@@ -16,14 +16,34 @@ contract SimpleNFTWithdrawTest is Test {
         vm.prank(owner);
         simpleNFT = new SimpleNFT();
 
-        // Fund the contract with some ETH
         vm.deal(address(nonOwner), 1 ether);
         vm.prank(nonOwner);
         simpleNFT.mintSimpleNFT{value: 200 gwei}();
     }
 
+    function testWithdrawFailsWhenTimeLockNotExpiredSuccess() public {
+        vm.startPrank(owner);
+        vm.warp(simpleNFT.revealTimestamp() + 1 seconds);
+        simpleNFT.reveal();
+
+        uint256 withdrawAmount = 100 gwei;
+
+        uint256 initialOwnerBalance = owner.balance;
+        uint256 initialContractBalance = simpleNFT.totalEthersCollected();
+
+        vm.expectRevert("Too early to withdraw");
+        simpleNFT.withdraw(withdrawAmount);
+    }
+
+    function testWithdrawFailsWhenNotEnoughBalance() public {
+        vm.expectRevert("Not enough balance");
+        simpleNFT.withdraw(1 ether);
+    }
+
     function testWithdrawSuccess() public {
         vm.startPrank(owner);
+        vm.warp(simpleNFT.revealTimestamp() + 2 days);
+        simpleNFT.reveal();
         uint256 withdrawAmount = 100 gwei;
 
         uint256 initialOwnerBalance = owner.balance;
@@ -41,7 +61,12 @@ contract SimpleNFTWithdrawTest is Test {
     function testWithdrawOnlyOwner() public {
         uint256 withdrawAmount = 1 gwei;
 
-        vm.prank(nonOwner);
+        vm.startPrank(owner);
+        vm.warp(simpleNFT.revealTimestamp() + 2 days);
+        simpleNFT.reveal();
+        vm.stopPrank();
+
+        vm.startPrank(nonOwner);
         vm.expectRevert();
         simpleNFT.withdraw(withdrawAmount);
     }
@@ -55,7 +80,8 @@ contract SimpleNFTWithdrawTest is Test {
 
     function testWithdrawZeroAmount() public {
         vm.startPrank(owner);
-
+        vm.warp(simpleNFT.revealTimestamp() + 2 days);
+        simpleNFT.reveal();
         uint256 initialOwnerBalance = owner.balance;
         uint256 initialContractBalance = simpleNFT.totalEthersCollected();
 
@@ -68,6 +94,8 @@ contract SimpleNFTWithdrawTest is Test {
 
     function testWithdrawEntireBalance() public {
         vm.startPrank(owner);
+        vm.warp(simpleNFT.revealTimestamp() + 2 days);
+        simpleNFT.reveal();
         uint256 contractBalance = simpleNFT.totalEthersCollected();
         uint256 initialOwnerBalance = owner.balance;
         simpleNFT.withdraw(contractBalance);
