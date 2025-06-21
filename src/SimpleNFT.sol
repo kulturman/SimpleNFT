@@ -24,7 +24,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
 
     uint256[] private allTokens;
     string public baseUrl =
-        "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeif2srdwcixtw2fu6a4ox72mhfg73bhjrf2pq6clap7rcza66bygo4";
+        "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeigdzn7xqhrj4f6nmptk6u3vrdvwvonsjsms7mwgta2c4rpbejhd5e";
 
     mapping(address => uint256) public balances;
     mapping(uint256 => address) public owners;
