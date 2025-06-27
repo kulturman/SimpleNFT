@@ -36,6 +36,7 @@ contract SimpleNFTWithdrawTest is Test {
     }
 
     function testWithdrawFailsWhenNotEnoughBalance() public {
+        vm.prank(owner);
         vm.expectRevert("Not enough balance");
         simpleNFT.withdraw(1 ether);
     }

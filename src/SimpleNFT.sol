@@ -39,13 +39,16 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         withdrawTimestamp = revealTimestamp + 1 hours;
     }
 
-    function mint() external {
+    modifier onlyOwner() {
         require(msg.sender == owner);
+        _;
+    }
+
+    function mint() external onlyOwner {
         __mint(msg.sender);
     }
 
-    function mint(address receiver) external {
-        require(msg.sender == owner);
+    function mint(address receiver) external onlyOwner {
         __mint(receiver);
     }
 
@@ -244,16 +247,15 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         ownedTokensIndex[tokenId] = ownedTokens[to].length - 1;
     }
 
-    function withdraw(uint256 amount) external {
-        require(msg.sender == owner && amount <= totalEthersCollected, "Not enough balance");
+    function withdraw(uint256 amount) external onlyOwner {
+        require(amount <= totalEthersCollected, "Not enough balance");
         require(revealed && block.timestamp >= withdrawTimestamp, "Too early to withdraw");
         totalEthersCollected -= amount;
         (bool success, ) = owner.call{value: amount}("");
         require(success, 'Transfer failed');
     }
 
-    function transferOwnership(address _newOwner) external {
-        require(msg.sender == owner);
+    function transferOwnership(address _newOwner) external onlyOwner {
         pendingOwner = _newOwner;
     }
 
@@ -263,8 +265,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         pendingOwner = address(0);
     }
 
-    function reveal(string calldata url) external {
-        require(msg.sender == owner);
+    function reveal(string calldata url) external onlyOwner {
         withdrawTimestamp = revealTimestamp + 1 hours;
         require(block.timestamp >= revealTimestamp, "Too early to reveal");
         revealed = true;
