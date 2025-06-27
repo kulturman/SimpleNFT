@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import  {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IERC165} from "./interfaces/IERC165.sol";
 import {IERC721Metadata} from "./interfaces/IERC721Metadata.sol";
 import {IERC721TokenReceiver} from "./interfaces/IERC721TokenReceiver.sol";
@@ -193,8 +193,7 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
 
     function supportsInterface(bytes4 interfaceID) external view returns (bool) {
         return interfaceID == type(IERC721).interfaceId || interfaceID == type(IERC721Metadata).interfaceId
-            || interfaceID == type(IERC721Enumerable).interfaceId
-            || interfaceID == type(IERC165).interfaceId;
+            || interfaceID == type(IERC721Enumerable).interfaceId || interfaceID == type(IERC165).interfaceId;
     }
 
     function name() external view returns (string memory) {
@@ -251,8 +250,8 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
         require(amount <= totalEthersCollected, "Not enough balance");
         require(revealed && block.timestamp >= withdrawTimestamp, "Too early to withdraw");
         totalEthersCollected -= amount;
-        (bool success, ) = owner.call{value: amount}("");
-        require(success, 'Transfer failed');
+        (bool success,) = owner.call{value: amount}("");
+        require(success, "Transfer failed");
     }
 
     function transferOwnership(address _newOwner) external onlyOwner {

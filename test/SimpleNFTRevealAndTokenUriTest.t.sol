@@ -31,7 +31,9 @@ contract SimpleNFTRevealAndTokenUriTest is Test {
     function testTokenUriReturnsRealUriWhenRevealed() public {
         simpleNFT.mint();
         vm.warp(simpleNFT.revealTimestamp() + 1 hours);
-        simpleNFT.reveal("https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeigdzn7xqhrj4f6nmptk6u3vrdvwvonsjsms7mwgta2c4rpbejhd5e");
+        simpleNFT.reveal(
+            "https://white-payable-bear-737.mypinata.cloud/ipfs/bafybeigdzn7xqhrj4f6nmptk6u3vrdvwvonsjsms7mwgta2c4rpbejhd5e"
+        );
 
         assertEq(simpleNFT.tokenURI(1), string(abi.encodePacked(simpleNFT.baseUrl(), "/1.json")));
     }
