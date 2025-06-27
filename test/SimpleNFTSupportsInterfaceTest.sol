@@ -7,6 +7,7 @@ import {IERC721Enumerable} from "../src/interfaces/IERC721Enumerable.sol";
 import {IERC721} from "../src/interfaces/IERC721.sol";
 import {IERC165} from "../src/interfaces/IERC165.sol";
 import {IERC721Metadata} from "../src/interfaces/IERC721Metadata.sol";
+import {IERC721TokenReceiver} from "../src/interfaces/IERC721TokenReceiver.sol";
 
 contract SimpleNFTSupportsInterfaceTest is Test {
     SimpleNFT public simpleNFT;
@@ -16,7 +17,7 @@ contract SimpleNFTSupportsInterfaceTest is Test {
     }
 
     function testReturnsFalseIfContractDoesNotSupportInterface() public {
-        assertFalse(simpleNFT.supportsInterface(bytes4(type(IERC165).interfaceId)));
+        assertFalse(simpleNFT.supportsInterface(bytes4(type(IERC721TokenReceiver).interfaceId)));
     }
 
     function testReturnsTrueIfContractSupportsInterface() public {
