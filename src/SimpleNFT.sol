@@ -36,7 +36,6 @@ contract SimpleNFT is IERC721, IERC165, IERC721Metadata, IERC721Enumerable {
     constructor() {
         owner = msg.sender;
         revealTimestamp = block.timestamp + 1 hours;
-        withdrawTimestamp = revealTimestamp + 1 hours;
     }
 
     modifier onlyOwner() {
